@@ -21,6 +21,9 @@
         {% endif %}
       </header>
       <p class="body">{{ post['body'] }}</p>
+      <form action="{{ url_for('blog.like', id=post['id']) }}" method="post">
+        <button name="like_button" type="submit">Da like tio</button>
+      </form>
     </article>
     {% if not loop.last %}
       <hr>

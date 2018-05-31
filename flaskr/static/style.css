@@ -100,6 +100,10 @@ nav ul li a, nav ul li span, header .action {
   white-space: pre-line;
 }
 
+.post .meta{
+  color: rgb(247, 0, 255);
+}
+
 .content:last-child {
   margin-bottom: 0;
 }

@@ -1,11 +1,13 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}"{{ post['title'] }}"{% endblock %}</h1>
+  <h1 class="post">{% block title %}"{{ post['title'] }}"{% endblock %}</h1>
+  
 {% endblock %}
 
 {% block content %}
   <article class="post">
+    <p class="meta"> likes: {{ post['likes'] }}</p>
     <p class="body">{{ post['body'] }}</p>
   </article>
 {% endblock %}

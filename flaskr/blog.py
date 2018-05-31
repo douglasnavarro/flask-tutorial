@@ -13,7 +13,7 @@ bp = Blueprint('blog', __name__)
 def index():
     db = get_db()
     posts = db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
+        'SELECT p.id, title, body, created, author_id, username, likes'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' ORDER BY created DESC'
     ).fetchall()
@@ -25,6 +25,7 @@ def create():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        likes = 0
         error = None
 
         if not title:
@@ -35,9 +36,9 @@ def create():
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (?, ?, ?)',
-                (title, body, g.user['id'])
+                'INSERT INTO post (title, body, author_id, likes)'
+                ' VALUES (?, ?, ?, ?)',
+                (title, body, g.user['id'], likes)
             )
             db.commit()
             return redirect(url_for('blog.index'))
@@ -46,7 +47,7 @@ def create():
 
 def get_post(id, check_author=True):
     post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
+        'SELECT p.id, title, body, created, author_id, username, likes'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?',
         (id,)
@@ -101,5 +102,17 @@ def view(id):
     post = get_post(id, check_author=False)
     return render_template('blog/view.html', post=post)
 
-def like_post(id):
-    post = get_post(id, check_author=False)
+@bp.route('/<int:id>/like', methods=('POST',))
+def like(id):
+
+    if request.method == 'POST':
+        post = get_post(id, check_author=False)
+        likes = post['likes'] + 1
+        db = get_db()
+        db.execute(
+            'UPDATE post SET likes = ?'
+            ' WHERE id = ?',
+            (likes, id)
+        )
+        db.commit()
+    return redirect(url_for('blog.index'))
