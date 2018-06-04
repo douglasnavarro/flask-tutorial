@@ -11,7 +11,8 @@ def test_index(client, auth):
     response = client.get('/')
     assert b'Log Out' in response.data
     assert b'test title' in response.data
-    assert b'by test on 2018-01-01' in response.data
+    assert b'likes: 3' in response.data
+    assert b'por test em 2018-01-01' in response.data
     assert b'test\nbody' in response.data
     assert b'href="/1/update"' in response.data
 
@@ -40,6 +41,13 @@ def test_author_required(app, client, auth):
     assert b'href="/1/update"' not in client.get('/').data
 
 
+def test_view(client):
+    response = client.get('/1/view')
+    assert response.status_code == 200
+    assert b'test title' in response.data
+    assert b'likes: 3' in response.data
+    assert b'class="body">test' in response.data
+
 @pytest.mark.parametrize('path', (
     '/2/update',
     '/2/delete',
@@ -57,6 +65,9 @@ def test_create(client, auth, app):
         db = get_db()
         count = db.execute('SELECT COUNT(id) FROM post').fetchone()[0]
         assert count == 2
+        post = db.execute('SELECT * FROM post WHERE id = 2').fetchone()
+        assert post['likes'] == 0
+        
 
 
 def test_update(client, auth, app):
